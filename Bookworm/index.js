@@ -4,7 +4,7 @@ import cors from 'cors';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import routes from './routes/routes.js';
-import googleAuthRoutes from '../routes/googleAuth.routes.js';
+import googleAuthRoutes from './routes/googleAuth.routes.js';
 
 dotenv.config();
 
