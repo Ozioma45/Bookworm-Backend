@@ -31,7 +31,7 @@ export const userLogin=async(req,res)=>{
      if(!exisitingUser){
        return res.status(400).json({error:'user not found'})
      }
-     const isMatch = await comparePassword(passWord,exisitingUser.User.passWord)
+     const isMatch = await comparePassword(passWord,exisitingUser.passWord)
      if(!isMatch){
         return res.status(400).json({error:'invalid password'})
      }
