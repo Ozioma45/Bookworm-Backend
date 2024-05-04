@@ -17,7 +17,8 @@ const bookShelf=joi.object({
   author:joi.string().required(),
   genre:joi.string().required(),
   description:joi.string().required(),
-  image:joi.string().required()
+  image:joi.string().required(),
+  categorie:joi.string().required(),
 });
 export const validateUserSchema=(name,email,passWord)=>{
      try{
@@ -37,9 +38,9 @@ export const validateUserLoginSchema=(email,passWord)=>{
      }
 }
 
-export const validateBookShelfSchema=(user,name,author,genre,description,image)=>{
+export const validateBookShelfSchema=(user,name,author,genre,description,image, categorie)=>{
   try{
-    const valid= bookShelf.validate(user,name,author,genre,description,image);
+    const valid= bookShelf.validate(user,name,author,genre,description,image, categorie);
     return valid;
   }catch(error){
       console.log(error)

@@ -1,6 +1,6 @@
 import Bookshelf from "../model/bookShelf.js";
 
-export const createBookshelf= async(user,name,author,genre,description,image) =>{
+export const createBookshelf= async(user,name,author,genre,description,image, categorie) =>{
        try{
         const bookshelf = new Bookshelf({
             user,
@@ -8,7 +8,8 @@ export const createBookshelf= async(user,name,author,genre,description,image) =>
             author,
             genre,
             description,
-            image
+            image,
+            categorie
         })
        await bookshelf.save();
         return bookshelf;

@@ -5,11 +5,11 @@ import{verifyCookie} from '../helper/veriftytoken.js'
 export const saveBookshelf= async(req,res)=>{
     try{
         const {user,name,author,genre,description,image}=req.body;
-        const vaild= validateBookShelfSchema(name,author,genre,description,image)
+        const vaild= validateBookShelfSchema(name,author,genre,description,image, categorie)
         if(!vaild){
             return res.status(400).json({error:'invalid data'})
         }
-        const bookshelf = await createBookshelf(user,name,author,genre,description,image);
+        const bookshelf = await createBookshelf(user,name,author,genre,description,image, categorie);
         if(!bookshelf){
             return res.status(400).json({error:'invalid data'})
         }
