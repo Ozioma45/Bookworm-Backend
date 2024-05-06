@@ -24,3 +24,12 @@ export const findUserByEmail = async(email)=>{
         console.log(error);
     }
 }
+
+export const findUserAndUpdate=async(id,imageUrl)=>{
+    try{
+        const user= await User.findByIdAndUpdate(id,{ profilepicture:imageUrl},{new:true})
+        return user
+    }catch(error){
+        console.log(error);
+    }
+}

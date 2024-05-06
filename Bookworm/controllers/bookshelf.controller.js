@@ -4,7 +4,7 @@ import{verifyCookie} from '../helper/veriftytoken.js'
 
 export const saveBookshelf= async(req,res)=>{
     try{
-        const {user,name,author,genre,description,image}=req.body;
+        const {user,name,author,genre,description,image,categorie}=req.body;
         const vaild= validateBookShelfSchema(name,author,genre,description,image, categorie)
         if(!vaild){
             return res.status(400).json({error:'invalid data'})
