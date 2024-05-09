@@ -3,7 +3,29 @@ const router= Router();
 import {createUser,userLogin} from '../controllers/user.controller.js';
 import {getBooks, searchBooks} from '../controllers/book.controller.js';
 import {saveBookshelf,getBookshelfByUser,deleteBookshelf} from '../controllers/bookshelf.controller.js';
+import {createCategories,findCategories,deleteCategories} from '../controllers/bookcategorie.controller.js'
+import {createSammary} from  '../controllers/summary.controller.js'
+import passport from '../config/O-auth.js';
 
+
+// google OAuth Router
+router.get('/', (req, res) => {
+    res.send('<a href="/auth/google">Authenticate with Google</a>');
+  });
+
+router.get('/auth/google',
+  passport.authenticate('google', { scope: [ 'email', 'profile' ] }
+));
+router.get( '/auth/google/callback',
+  passport.authenticate( 'google', {
+    successRedirect: '/protected',
+    failureRedirect: '/auth/google/failure'
+  })
+);
+
+router.get('/auth/google/failure', (req, res) => {
+    res.send('Failed to authenticate..');
+  });
 // user signup and signin routes
 router.post('/user/signup',createUser)
 router.post('/user/login',userLogin)
@@ -16,4 +38,12 @@ router.post('/books/search',searchBooks)
 router.post('/saveBookshelf',saveBookshelf)
 router.get('/getBookshelfByUser',getBookshelfByUser)
 router.delete('/deleteBookshelf/:id',deleteBookshelf)
+
+// Book Category
+router.post('/createCategory',createCategories)
+router.get('/category',findCategories)
+router.delete('/deleteCategory',deleteCategories)
+
+// Book Sammary
+router.post('/createSammary',createSammary)
 export default router;

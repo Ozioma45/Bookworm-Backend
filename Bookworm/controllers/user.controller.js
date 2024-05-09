@@ -5,7 +5,6 @@ import {comparePassword} from '../config/bcryptjs.js';
 import cloudinary from '../config/cloudinary.js';
 import { singleUpload } from '../config/multer.js'; 
 import jwt from 'jsonwebtoken'
-
 export const createUser= async(req,res)=>{
   try{
     const {name,email,passWord}=req.body;
@@ -91,5 +90,4 @@ export const addProfilePicture = async(req, res) =>{
     console.error('Error:', error);
     return res.status(500).json({ message: "Internal server error" });
 }
-
 }

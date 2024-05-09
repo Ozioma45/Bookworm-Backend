@@ -40,7 +40,7 @@ export const findCategorieAndDelete = async (Id, name) => {
         const existingCategory = categories.some(cat => cat.name === name);
 
         if (existingCategory) {
-            // Use a different variable name to avoid redeclaration
+           
             const deletedCategory = await Categorie.findOneAndDelete({ user: userId, name: name });
             return true;
         } else {
