@@ -38,10 +38,9 @@ export const findCategorieAndDelete = async (Id, name) => {
     try {
         const categories = await Categorie.find({ user: Id });
         const existingCategory = categories.some(cat => cat.name === name);
-
         if (existingCategory) {
            
-            const deletedCategory = await Categorie.findOneAndDelete({ user: userId, name: name });
+            const deletedCategory = await Categorie.findOneAndDelete({ user: Id, name: name });
             return true;
         } else {
             return false;

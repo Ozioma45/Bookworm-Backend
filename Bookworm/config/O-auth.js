@@ -1,6 +1,6 @@
 import passport from 'passport';
 import GoogleStrategy from 'passport-google-oauth2';
-import GoogleUser from '../model/googleAuth.js';
+import jwt from 'jsonwebtoken'; // Import jsonwebtoken package
 
 passport.use(new GoogleStrategy({
     clientID: process.env.ClientID,
@@ -8,44 +8,36 @@ passport.use(new GoogleStrategy({
     callbackURL: "http://localhost:8000/auth/google/callback",
     passReqToCallback: true,
   },
-  async function(request, accessToken, refreshToken, profile, done) {
+  function(request, accessToken, refreshToken, profile, done) {
     try {
-      // Check if the user already exists in your database
-      let user = await GoogleUser.findOne({ googleId: profile.id });
-      if (user) {
-        // If the user already exists, return the user
-        return done(null, user);
-      } else {
-        // If the user does not exist, create a new user
-        const newUser = new GoogleUser({
-          googleId: profile.id,
-          // You can also save other profile information here if needed
-          email: profile.email, // Provide email
-          name: profile.given_name,   // Provide name
-          profilepicture: profile.photos[0].value // Provide profile picture
-        });
-        console.log(profile);
-        await newUser.save();
-        return done(null, newUser);
-      }
+      // Generate JWT token using user profile data
+      const token = jwt.sign({ 
+        googleId: profile.id, 
+        email: profile.email,
+        name: profile.given_name,
+        profilepicture: profile.photos[0].value
+      }, process.env.JWT_SECRET);
+
+      return done(null, token);
     } catch (err) {
       return done(err);
     }
   })
 );
 
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
+// Serialize and deserialize user using JWT
+passport.serializeUser(function(token, done) {
+  done(null, token);
 });
 
-passport.deserializeUser(async function(id, done) {
+passport.deserializeUser(async function(token, done) {
   try {
-    let user = await User.findById(id);
-    done(null, user);
+    console.log(token)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    done(null, decoded);
   } catch (err) {
     done(err);
   }
 });
-
 
 export default passport;

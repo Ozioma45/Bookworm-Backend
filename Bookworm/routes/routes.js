@@ -1,6 +1,6 @@
 import {Router} from 'express';
 const router= Router();
-import {createUser,userLogin} from '../controllers/user.controller.js';
+import {createUser,userLogin,findUserEmail,updatePassword,addProfilePicture} from '../controllers/user.controller.js';
 import {getBooks, searchBooks} from '../controllers/book.controller.js';
 import {saveBookshelf,getBookshelfByUser,deleteBookshelf} from '../controllers/bookshelf.controller.js';
 import {createCategories,findCategories,deleteCategories} from '../controllers/bookcategorie.controller.js'
@@ -18,7 +18,7 @@ router.get('/auth/google',
 ));
 router.get( '/auth/google/callback',
   passport.authenticate( 'google', {
-    successRedirect: '/protected',
+    successRedirect: '/books',
     failureRedirect: '/auth/google/failure'
   })
 );
@@ -29,6 +29,9 @@ router.get('/auth/google/failure', (req, res) => {
 // user signup and signin routes
 router.post('/user/signup',createUser)
 router.post('/user/login',userLogin)
+router.post('/user/findEmail',findUserEmail)
+router.post('/user/updatePassword',updatePassword)
+router.post('/user/addProfilePicture',addProfilePicture)
 
 // Book routes
 router.get('/books',getBooks)

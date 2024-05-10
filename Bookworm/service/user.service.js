@@ -33,3 +33,12 @@ export const findUserAndUpdate=async(id,imageUrl)=>{
         console.log(error);
     }
 }
+
+export const  updateUserPassword=async(email,passWord)=>{
+    try{
+        const user= await User.findOneAndUpdate({email},{passWord:passWord},{new:true})
+        return user
+    }catch(error){
+        console.log(error);
+    }
+}

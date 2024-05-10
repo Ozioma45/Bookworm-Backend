@@ -1,4 +1,4 @@
-import {saveUser,findUserByEmail,findUserAndUpdate} from '../service/user.service.js';
+import {saveUser,findUserByEmail,findUserAndUpdate,updateUserPassword} from '../service/user.service.js';
 import {validateUserSchema, validateUserLoginSchema} from '../config/joi.js';
 import {verifyCookie} from '../helper/veriftytoken.js'
 import {comparePassword} from '../config/bcryptjs.js';
@@ -46,7 +46,38 @@ export const userLogin=async(req,res)=>{
         res.status(500).json({error:error.message})
     }
 }
+export const findUserEmail=async(req, res) => {
+    try{
+       const {email}=req.body;
+       const user = await findUserByEmail(email)
+       if(!user){
+         return res.status(400).json({error:'user not found'})
+       }
+       const token = jwt.sign({email},process.env.JWT_SECRET,{expiresIn:'1h'})
+       return res.status(200).json({message:'User found successfully',token:token})
+    }catch(error){
+      res.status(500).json({error:error.message})
+    }
+}
 
+export const updatePassword=async(req, res) => {
+  try{
+    const authHeader = req.headers.authorization;
+    const [bearer, token] = authHeader.split(' '); 
+    if (bearer !== 'Bearer' || !token) { 
+        return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    const user = await verifyCookie(token);
+    if(!user){
+      return res.status(401).json({error:'TOken auth required'})
+    }
+    const {passWord}=req.body;
+    await updateUserPassword(user,passWord)
+    return res.status(200).json({success:'Success' , message: "passWord updated successfully"})  
+  }catch(error){
+    res.status(500).json({error:error.message})
+  }
+}
 export const addProfilePicture = async(req, res) =>{
   try {
     singleUpload(req, res, async (error) => {
