@@ -1,7 +1,7 @@
 import passport from 'passport';
 import GoogleStrategy from 'passport-google-oauth2';
 import GoogleUser from '../model/googleAuth.js';
-
+// m
 passport.use(new GoogleStrategy({
     clientID: process.env.ClientID,
     clientSecret: process.env.Clientsecret,
