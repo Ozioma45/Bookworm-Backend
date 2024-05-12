@@ -15,7 +15,7 @@ const app = express();
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cors({
-  origin: 'http://localhost:3000', // Replace with your allowed origin
+  origin: '*', // Replace with your allowed origin
     methods: ['GET', 'POST'], // Allow these HTTP methods
   allowedHeaders: ['Content-Type'], // Specify allowed headers
 }));
