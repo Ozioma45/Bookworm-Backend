@@ -1,12 +1,15 @@
 import jwt from 'jsonwebtoken';
 
-export const verifyCookie= (token)=>{
-    try{
-        const decode= jwt.verify(token, process.env.JWT_SECRET)
-       return decode
-    }catch(error){
-        console.log(error);
-        return error.message
-    }
 
-}
+export const authenticateUser = async (authHeader) => {
+    try {
+        const [bearer, token] = authHeader.split(' ');
+        if (bearer !== 'Bearer' || !token) {
+            return null;
+        }
+        const decode= jwt.verify(token, process.env.JWT_SECRET)
+        return decode.exisitingUser;
+    } catch (error) {
+        return null;
+    }
+};

@@ -1,15 +1,19 @@
 import {createBookshelf,findBookshelfByUser,deleteBookshelfByUser} from '../service/bookshelf.service.js';
 import{ validateBookShelfSchema} from '../config/joi.js'
-import{verifyCookie} from '../helper/veriftytoken.js'
+import {authenticateUser} from '../helper/veriftytoken.js'
 
 export const saveBookshelf= async(req,res)=>{
     try{
-        const {user,name,author,genre,description,image,categorie}=req.body;
+        const {name,author,genre,description,image,categorie}=req.body;
+        const user = await authenticateUser(req.headers.authorization);
+        if (!user) {
+         return res.status(401).json({ error: 'Token authentication required' });
+           }
         const vaild= validateBookShelfSchema(name,author,genre,description,image, categorie)
         if(!vaild){
             return res.status(400).json({error:'invalid data'})
         }
-        const bookshelf = await createBookshelf(user,name,author,genre,description,image, categorie);
+        const bookshelf = await createBookshelf(user._id,name,author,genre,description,image, categorie);
         if(!bookshelf){
             return res.status(400).json({error:'invalid data'})
         }
@@ -22,18 +26,10 @@ export const saveBookshelf= async(req,res)=>{
 
 export const getBookshelfByUser= async(req,res)=>{
     try{
-  const authHeader = req.headers.authorization;
-  if(!authHeader){
-    return res.status(401).json({error:'TOken auth required'})
-  }
-  const [bearer, token] = authHeader.split(' '); 
-  if (bearer !== 'Bearer' || !token) { 
-      return res.status(401).json({ success: false, message: "Unauthorized" });
-  }
-  const user = await verifyCookie(token);
-  if(!user){
-    return res.status(401).json({error:'TOken auth required'})
-  }
+     const user = await authenticateUser(req.headers.authorization);
+     if (!user) {
+      return res.status(401).json({ error: 'Token authentication required' });
+        }
   const bookshelf = await findBookshelfByUser(user._id);
   if(!bookshelf){
       return res.status(400).json({error:'no bookshelf found'})
@@ -47,18 +43,10 @@ export const getBookshelfByUser= async(req,res)=>{
 
 export const deleteBookshelf= async(req,res)=>{
     try{
-        const authHeader = req.headers.authorization;
-        if(!authHeader){
-          return res.status(401).json({error:'TOken auth required'})
-        }
-        const [bearer, token] = authHeader.split(' '); 
-        if (bearer !== 'Bearer' || !token) { 
-            return res.status(401).json({ success: false, message: "Unauthorized" });
-        }
-        const user = await verifyCookie(token);
-        if(!user){
-          return res.status(401).json({error:'TOken auth required'})
-        }
+        const user = await authenticateUser(req.headers.authorization);
+        if (!user) {
+         return res.status(401).json({ error: 'Token authentication required' });
+           }
         const {bookshelfId}=req.params
         if(!bookshelfId){
             return res.status(400).json({error:'please provide a bookshelf'})

@@ -1,10 +1,12 @@
 import {saveUser,findUserByEmail,findUserAndUpdate,updateUserPassword} from '../service/user.service.js';
 import {validateUserSchema, validateUserLoginSchema} from '../config/joi.js';
-import {verifyCookie} from '../helper/veriftytoken.js'
+import {authenticateUser} from '../helper/veriftytoken.js'
 import {comparePassword} from '../config/bcryptjs.js';
 import cloudinary from '../config/cloudinary.js';
 import { singleUpload } from '../config/multer.js'; 
 import jwt from 'jsonwebtoken'
+
+
 export const createUser= async(req,res)=>{
   try{
     const {name,email,passWord}=req.body;
@@ -62,15 +64,10 @@ export const findUserEmail=async(req, res) => {
 
 export const updatePassword=async(req, res) => {
   try{
-    const authHeader = req.headers.authorization;
-    const [bearer, token] = authHeader.split(' '); 
-    if (bearer !== 'Bearer' || !token) { 
-        return res.status(401).json({ success: false, message: "Unauthorized" });
-    }
-    const user = await verifyCookie(token);
-    if(!user){
-      return res.status(401).json({error:'TOken auth required'})
-    }
+    const user = await authenticateUser(req.headers.authorization);
+     if (!user) {
+      return res.status(401).json({ error: 'Token authentication required' });
+        }
     const {passWord}=req.body;
     await updateUserPassword(user,passWord)
     return res.status(200).json({success:'Success' , message: "passWord updated successfully"})  
@@ -98,17 +95,9 @@ export const addProfilePicture = async(req, res) =>{
         }
 
         const imageUrl = uploadImage.secure_url;
-        const authHeader = req.headers.authorization;
-        if(!authHeader){
-          return res.status(401).json({error:'TOken auth required'})
-        }
-        const [bearer, token] = authHeader.split(' '); 
-        if (bearer !== 'Bearer' || !token) { 
-            return res.status(401).json({ success: false, message: "Unauthorized" });
-        }
-        const user = await verifyCookie(token);
-        if(!user){
-          return res.status(401).json({error:'TOken auth required'})
+        const user = await authenticateUser(req.headers.authorization);
+       if (!user) {
+      return res.status(401).json({ error: 'Token authentication required' });
         }
         const updatedUser = await findUserAndUpdate(user._id,imageUrl)
         if(!updatedUser){
