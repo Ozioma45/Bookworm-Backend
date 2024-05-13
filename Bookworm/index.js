@@ -1,34 +1,35 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import connectDb from './config/mongodb.js';
-import passport from 'passport';
-import routes from './routes/routes.js';
-import session from 'express-session';
+import cors from "cors";
+import express from "express";
+import { config } from "dotenv";
+import connectDB from "./config/mongodb.js";
 
-connectDb()
-dotenv.config();
+import UserRoutes from "./routes/userRoutes.js";
 
-const port = process.env.PORT || 3000;
+// Load environment variables from .env file
+config();
+
+// Connect to MongoDB database
+connectDB();
+
+// Create an instance of Express.js
 const app = express();
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use(cors({
-    origin: '*', // Allow requests from this origin
-    credentials: true, // Allow credentials (cookies) to be sent
-  }));
-app.use(passport.initialize());
+// Use middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
-app.use(session({
-    secret: 'your_secret_key', // Replace with a secret key
-    resave: false,
-    saveUninitialized: true
-  }));
-// Use routes
-app.use('/', routes);
+// Define routes
+app.use("/api/user", UserRoutes);
 
+/* // Define error handling middleware
+app.use((err, req, res) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+}); */
 
+// Start the server
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`)
+  console.log(`Server is running on port ${port}`);
 });
