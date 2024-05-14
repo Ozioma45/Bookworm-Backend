@@ -3,7 +3,7 @@ import express from "express";
 import { config } from "dotenv";
 import connectDB from "./config/mongodb.js";
 
-import UserRoutes from "./routes/userRoutes.js";
+import routes from "./routes/routes.js";
 
 // Load environment variables from .env file
 config();
@@ -19,14 +19,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-// Define routes
-app.use("/api/user", UserRoutes);
+app.use((req, res, next) => {
+  console.log(req.path, req.method);
+  next();
+});
 
-/* // Define error handling middleware
-app.use((err, req, res) => {
-  console.error(err.stack);
-  res.status(500).send("Something broke!");
-}); */
+// Define routes
+app.use("/api/", routes);
 
 // Start the server
 const port = process.env.PORT || 3000;

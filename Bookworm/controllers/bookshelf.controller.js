@@ -1,63 +1,74 @@
-import {createBookshelf,findBookshelfByUser,deleteBookshelfByUser} from '../service/bookshelf.service.js';
-import{ validateBookShelfSchema} from '../config/joi.js'
-import {authenticateUser} from '../helper/veriftytoken.js'
+import mongoose from "mongoose";
+import Bookshelf from "../model/bookShelf.js";
 
-export const saveBookshelf= async(req,res)=>{
-    try{
-        const {name,author,genre,description,image,categorie}=req.body;
-        const user = await authenticateUser(req.headers.authorization);
-        if (!user) {
-         return res.status(401).json({ error: 'Token authentication required' });
-           }
-        const vaild= validateBookShelfSchema(name,author,genre,description,image, categorie)
-        if(!vaild){
-            return res.status(400).json({error:'invalid data'})
-        }
-        const bookshelf = await createBookshelf(user._id,name,author,genre,description,image, categorie);
-        if(!bookshelf){
-            return res.status(400).json({error:'invalid data'})
-        }
-        return res.status(200).json({message:"Bookshelf saved successfully",data:bookshelf})
-    }catch(error){
-        console.log(error)
-        return res.status(500).json({error:'internal server error'})
-    }
-}
+export const saveBookshelf = async (req, res) => {
+  const { name, author, genre, description, image, categorie } = req.body;
 
-export const getBookshelfByUser= async(req,res)=>{
-    try{
-     const user = await authenticateUser(req.headers.authorization);
-     if (!user) {
-      return res.status(401).json({ error: 'Token authentication required' });
-        }
-  const bookshelf = await findBookshelfByUser(user._id);
-  if(!bookshelf){
-      return res.status(400).json({error:'no bookshelf found'})
+  let emptyFields = [];
+
+  if (!name) {
+    emptyFields.push("name");
   }
-  return res.status(200).json({message:"Bookshelf found" ,bookshelf})
-    }catch(error){
-        console.log(error)
-        return res.status(500).json({error:'internal server error'})
-    }
-}
+  if (!author) {
+    emptyFields.push("author");
+  }
+  if (!genre) {
+    emptyFields.push("genre");
+  }
+  if (!description) {
+    emptyFields.push("description");
+  }
+  if (!image) {
+    emptyFields.push("image");
+  }
+  if (!categorie) {
+    emptyFields.push("description");
+  }
 
-export const deleteBookshelf= async(req,res)=>{
-    try{
-        const user = await authenticateUser(req.headers.authorization);
-        if (!user) {
-         return res.status(401).json({ error: 'Token authentication required' });
-           }
-        const {bookshelfId}=req.params
-        if(!bookshelfId){
-            return res.status(400).json({error:'please provide a bookshelf'})
-        }
-        const bookshelf = await deleteBookshelfByUser(user._id,bookshelfId);
-        if(!bookshelf){
-            return res.status(400).json({error:'no bookshelf found'})
-        }
-        return res.status(200).json({message:"Bookshelf deleted" ,bookshelf})
-    }catch(error){
-        console.log(error)
-        return res.status(500).json({error:'internal server error'})
-    }
-}
+  if (emptyFields.length > 0) {
+    return res
+      .status(400)
+      .json({ error: "Please fill all the fields", emptyFields });
+  }
+
+  //add doc to db
+  try {
+    const user_id = req.user._id;
+    const bookShelf = await Bookshelf.create({
+      name,
+      author,
+      genre,
+      description,
+      image,
+      categorie,
+      user_id,
+    });
+    res.status(200).json(bookShelf);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+export const getBookshelfByUser = async (req, res) => {
+  const user_id = req.user._id;
+
+  const bookShelf = await Bookshelf.find({ user_id }).sort({ createdAt: -1 });
+
+  res.status(200).json(bookShelf);
+};
+
+export const deleteBookshelf = async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ error: "Bookshelf not found" });
+  }
+
+  const bookShelf = await Bookshelf.findOneAndDelete({ _id: id });
+
+  if (!bookShelf) {
+    return res.status(404).json({ error: "Bookshelf not found" });
+  }
+
+  res.status(200).json(bookShelf);
+};
